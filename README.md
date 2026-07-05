@@ -1,239 +1,461 @@
-# ✈️ PlanMyTrips:
+<div align="center">
 
-## AI-Powered Personalized Travel Itinerary Generator
+<img src="https://img.shields.io/badge/-%E2%9C%88%EF%B8%8F%20PlanMyTrip%20AI-1a1a2e?style=for-the-badge&logoColor=white" alt="PlanMyTrip AI" height="60"/>
 
-![image](images/image.png)
-![image2](images/image2.png)
-![image2](images/image3.png)
+<h1>PlanMyTrip AI</h1>
 
+<p><strong>AI-powered travel planning platform that generates personalized multi-day itineraries</strong><br/>
+Built with LangGraph · FastAPI · Groq LLM · ChromaDB · RAG · Weather Intelligence · Real-Time Search</p>
 
-<!-- ![image](https://github.com/user-attachments/assets/b5e176ed-9dbe-4b8f-8b2a-25761e273e14) -->
+<p>
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.110+-009688?style=flat-square&logo=fastapi&logoColor=white"/>
+  <img src="https://img.shields.io/badge/React-18+-61DAFB?style=flat-square&logo=react&logoColor=black"/>
+  <img src="https://img.shields.io/badge/LangGraph-Latest-FF6B35?style=flat-square"/>
+  <img src="https://img.shields.io/badge/ChromaDB-Latest-F97316?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Groq-LLM-00A67E?style=flat-square"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square"/>
+</p>
 
+<br/>
 
+</div>
 
-## 📚 Table of Contents
+---
 
-- [Introduction](#-introduction)
+## 📋 Table of Contents
+
+- [Overview](#-overview)
 - [Features](#-features)
+- [System Architecture](#%EF%B8%8F-system-architecture)
+- [LangGraph Workflow](#-langgraph-workflow)
 - [Tech Stack](#-tech-stack)
-- [Architecture](#🏗-Architecture)
-- [Setup and Installation](#-setup-and-installation)
-- [Usage](#-usage)
-- [AI and Data Processing](#-ai-and-data-processing)
-- [Design Choices](#-design-choices)
-- [Challenges and Solutions](#-challenges-and-solutions)
+- [Project Structure](#-project-structure)
+- [RAG Pipeline](#-rag-pipeline)
+- [Installation](#%EF%B8%8F-installation)
+- [API Reference](#-api-reference)
+- [Example Usage](#-example-usage)
 - [Future Improvements](#-future-improvements)
-- [Deployment](#-deployment)
-- [Personal Note](#-personal-note)
+- [Author](#-author)
 
-## 🌈 Introduction
+---
 
-PlanMyTrips is an innovative, **AI-powered travel itinerary generator** designed to create personalized travel experiences based on user preferences. Leve**RAG**ing cutting-edge AI technologies, including ****RAG** (Retrieval-Augmented Generation)** and **LLM (Large Language Models)**, PlanMyTrips curates dream vacations by synthesizing data from thousands of verified travelers' experiences.
+## 🌍 Overview
 
-This solution is focusing on creating a web application that generates tailored travel itineraries. AuraTrips goes beyond the basic requirements, offering a seamless, user-friendly interface coupled with powerful backend processing to deliver dynamic, detailed itineraries that cater to individual needs and preferences.
+**PlanMyTrip AI** is an intelligent travel planning system that combines local knowledge retrieval, live weather data, and real-time web search to generate practical, budget-aware travel plans — complete with accommodation, restaurant recommendations, transportation guidance, packing advice, and downloadable PDF itineraries.
+
+---
 
 ## ✨ Features
 
-- 🖥️ User-friendly interface for inputting travel preferences
-- 🤖 AI-powered itinerary generation using **RAG** and LLM technologies
-- 💡 Personalized recommendations based on budget, interests, and trip duration
-- 🗺️ Integration with Google Maps API for location visualization
-- 📱 Responsive design for seamless use across devices
-- 🔐 User authentication and itinerary saving functionality
+<table>
+<tr>
+<td width="50%">
 
-## 🛠️ Tech Stack
+### 🗺️ AI Travel Planning
+Generate complete itineraries based on:
+- Destination City
+- Budget & Travel Dates
+- Number of Travellers
+- Preferred Cuisine
+- Travel Style & Preferences
 
-### Backend
+</td>
+<td width="50%">
 
-![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Pydantic](https://img.shields.io/badge/Pydantic-2A9D8F?style=for-the-badge&logo=pydantic&logoColor=white)
-![Groq API](https://img.shields.io/badge/Groq_API-262626?style=for-the-badge&logo=python&logoColor=white)
-![Python](https://img.shields.io/badge/Python_3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+### 📚 RAG Knowledge Base
+Retrieval-Augmented Generation using:
+- Delhi Travel Knowledge Base PDF
+- Delhi Tourism Websites
+- Hotel & Restaurant Information
+- All indexed in **ChromaDB** with semantic embeddings
 
+</td>
+</tr>
+<tr>
+<td width="50%">
 
+### 🌤️ Weather Intelligence
+- Fetches **live weather data**
+- Adjusts activity scheduling by weather
+- Recommends appropriate clothing
+- Avoids poor weather planning
+- Indoor/outdoor activity routing
 
-- **FastAPI**: High-performance, easy-to-use framework for building APIs
-- **SQLAlchemy**: SQL toolkit and ORM for database operations
-- **Pydantic**: Data validation and settings management
-- **Groq API**: For accessing the LLaMA 3 language model
-- **Python 3.9+**
+</td>
+<td width="50%">
 
-### Frontend
+### 🔍 Real-Time Search Agent
+Uses **Serper Search** to gather:
+- Local events & seasonal attractions
+- Cuisine recommendations
+- Travel tips & hidden gems
+- Up-to-date destination info
 
-![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-262626?style=for-the-badge&logo=radix-ui&logoColor=white)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
-![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
+</td>
+</tr>
+<tr>
+<td width="50%">
 
+### 💰 Budget Optimization Engine
+Post-generation optimizer that:
+- Validates budget constraints
+- Reduces unnecessary expenses
+- Optimizes transport choices
+- Improves route efficiency
+- Preserves itinerary quality
 
-- **React**: A JavaScript library for building user interfaces
-- **Vite**: Next-generation frontend tooling
-- **Tailwind CSS**: Utility-first CSS framework
-- **shadcn/ui**: Re-usable components built with Radix UI and Tailwind
-- **React Router**: Declarative routing for React applications
-- **Axios**: Promise-based HTTP client for making API requests
+</td>
+<td width="50%">
 
-### AI and Data Processing
+### 🍽️ Smart Food Planning
+Every day includes:
+- Breakfast, Lunch & Dinner
+- Restaurant name & dish recommendation
+- Estimated costs per meal
+- Based on cuisine preferences & budget
 
-- **LLaMA 3**: Open-source large language model for natural language processing
-- **RAG (Retrieval-Augmented Generation)**: For enhancing AI responses with external data
-- **CSV data ingestion**: For processing local datasets of travel destinations
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-## 🏗️ Architecture
+### 🏨 Accommodation Recommendations
+Budget-aware hotel suggestions:
+- **Budget** · **Mid-range** · **Luxury**
+- Based on travel style & retrieved data
 
-AuraTrips follows a modern, scalable architecture:
+</td>
+<td width="50%">
 
-1. **Frontend**: built with React, providing a responsive and interactive user interface.
-2. **Backend API**: FastAPI-powered RESTful API handling user requests, authentication, and AI processing.
-3. **Database**: SQLite for development, with easy file based makes it easy to deploy with backend.
-4. **AI Processing**: Integration with Groq API for accessing the LLaMA 3 model, enhanced with **RAG** for personalized recommendations.
-5. **External Services**: Google Maps API for location visualization and mapping features.
+### 📄 PDF Export
+Professional downloadable trip plans:
+- Daily itinerary & meals
+- Transportation breakdown
+- Packing list & cost estimates
 
-## 🚀 Setup and Installation
+</td>
+</tr>
+</table>
 
-### Backend
+---
 
-1. Clone the repository:
+## 🏗️ System Architecture
 
-   ```
-   git clone https://github.com/anxkhn/auratrips.git
-   cd auratrips/server
-   ```
+```
+┌─────────────────────────────────────────────────┐
+│              Frontend (React + Vite)             │
+└────────────────────────┬────────────────────────┘
+                         │ HTTP
+                         ▼
+┌─────────────────────────────────────────────────┐
+│               FastAPI Backend                    │
+└────────────────────────┬────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────┐
+│                  LangGraph                       │
+│                                                  │
+│   ┌──────────┐  ┌──────────┐  ┌──────────────┐  │
+│   │ RAG Node │  │ Weather  │  │ Search Node  │  │
+│   │          │  │   Node   │  │   (Serper)   │  │
+│   └────┬─────┘  └────┬─────┘  └──────┬───────┘  │
+│        └─────────────┼───────────────┘           │
+│                      │                           │
+│              ┌───────▼───────┐                   │
+│              │  Planner Node │                   │
+│              └───────┬───────┘                   │
+│                      │                           │
+│            ┌─────────▼─────────┐                 │
+│            │  Optimizer Node   │                 │
+│            └─────────┬─────────┘                 │
+└──────────────────────┼──────────────────────────┘
+                       │
+              ┌────────▼─────────┐
+              │  Structured JSON │
+              │  Output + PDF    │
+              └──────────────────┘
+```
 
-2. Set up a virtual environment:
+---
 
-   ```
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-   ```
+## 🧠 LangGraph Workflow
 
-3. Install dependencies:
+```
+START
+  │
+  ├─▶ [RAG Node]         ← Retrieves local travel knowledge from ChromaDB
+  │
+  ├─▶ [Weather Node]     ← Fetches live weather, adjusts activity scheduling
+  │
+  ├─▶ [Search Node]      ← Real-time search for events, tips, hidden gems
+  │
+  ├─▶ [Planner Node]     ← Generates full multi-day itinerary with meals
+  │
+  └─▶ [Optimizer Node]   ← Validates budget, optimizes routes & expenses
+        │
+       END → Structured Output → PDF Export
+```
 
-   ```
-   pip install -r requirements.txt
-   ```
+---
 
-4. Set up environment variables:
-
-   ```
-   cp .env.example .env
-   ```
-
-   Edit the `.env` file with your specific configuration.
-
-5. Run the server:
-   ```
-   uvicorn app.main:app --reload
-   ```
-
-### Frontend
-
-login Page
-![image2](images/image4.png)
-
-
-
-Trips Planner Page
-![image2](images/image5.png)
-
-Travel Page
-![image2](images/image6.png)
-![image2](images/image7.png)
-![image2](images/image8.png)
-![image2](images/image9.png)
-![image2](images/image10.png)
-
-
-
-### Looks dope right? Time to set it up!
-
-1. Navigate to the client directory:
-
-   ```
-   cd ../client
-   ```
-
-2. Install dependencies:
-
-   ```
-   npm install
-   ```
-
-3. Set up environment variables:
-
-   ```
-   cp .env.example .env
-   ```
-
-   Edit the `.env` file with your specific configuration.
-
-4. Run the development server:
-   ```
-   npm run dev
-   ```
-
-## 📖 Usage
-
-1. Open your browser and navigate to `http://localhost:5173` (or the port specified by Vite).
-2. Sign up / sign in or continue without signing to your AuraTrips account.
-3. Fill in your travel preferences, including destination, budget, interests, and trip duration.
-4. Click "Generate Itinerary" to receive your personalized travel plan.
-5. Explore and customize your itinerary as needed.
-
-## 🧠 AI and Data Processing
-
-AuraTrips implements a ****RAG** (Retrieval-Augmented Generation) model** to leverage data from a local CSV file containing information about the best travel destinations. This approach allows us to provide more accurate and up-to-date recommendations by combining the power of large language models with real-world data.
-
-The **open-source LLaMA 3 model** is used for curating and generating personalized itineraries. By utilizing this advanced language model, we can create more natural and context-aware travel plans that truly reflect the user's preferences and interests.
-
-The **RAG** implementation involves the following steps:
-
-1. **Data Ingestion**: We process a CSV file containing verified travel destination data sourced from [Kaggle](https://www.kaggle.com/datasets/saketk511/travel-dataset-guide-to-indias-must-see-places). This dataset has information about 300+ destinations, and user ratings, providing a rich source of information for generating personalized itineraries.
-2. **Retrieval**: When a user inputs their preferences, we use this data to retrieve relevant information about potential destinations and activities.
-3. **Generation**: The LLaMA 3 model then uses this retrieved information, along with the user's preferences, to generate a tailored itinerary.
-
-## 🎨 Design Choices
-
-1. **FastAPI for Backend**: Chosen for its high performance, easy-to-use async capabilities, and built-in support for OpenAPI documentation.
-2. **React with Vite for Frontend**: React provides a robust ecosystem for building interactive UIs, while Vite offers lightning-fast build times and hot module replacement.
-3. **Tailwind CSS and shadcn/ui**: Allow for rapid UI development with a consistent design language.
-4. ****RAG** Implementation**: Ensures AI-generated itineraries are grounded in real-world data and up-to-date information.
-5. **LLaMA 3 via Groq API**: Offers more control over the AI's outputs and potential for future fine-tuning.
-6. **CSV Data Integration**: Maintains a curated, high-quality dataset that can be easily updated and expanded.
-
-## 🚧 Challenges and Solutions
-
-1. **Challenge**: Integrating **RAG** with LLaMA 3 for accurate travel recommendations.
-   **Solution**: Developed a custom pipeline that retrieves relevant information from our CSV dataset based on user preferences, then uses this context to guide the LLaMA 3 model in generating personalized itineraries.
-
-2. **Challenge**: Unable to share with friends and family.
-   **Solution**: Added a feature to share the itinerary by downloading it as a PDF file or printing it. Additionally, the unique link can be shared via email.
-
-3. **Challenge**: Expensive to keep using LLaMA 3 model.
-   **Solution**: Implemented caching of responses from the LLM to reduce the cost of using the model. Subsequent requests for the same itinerary are essentially free as they are hashed to get a unique id and stored in the database.
-
-## 🔮 Future Improvements
-
-1. Implement user feedback loops to continuously improve AI recommendations.
-2. Integrate real-time pricing and availability data from travel APIs.
-3. Develop a mobile app for on-the-go itinerary access and updates.
-4. Enable sharing of entire itinerary PDF with friends and family via email.
-
-## 🚀 Deployment
+## 🛠 Tech Stack
 
 ### Backend
 
-The backend is deployed on Render and can be accessed at
-
-[https://planmytrip-backend-t10k.onrender.com]().
+| Tool | Purpose |
+|------|---------|
+| ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white) | REST API server |
+| ![LangGraph](https://img.shields.io/badge/LangGraph-FF6B35?style=flat-square) | AI workflow orchestration |
+| ![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat-square) | LLM toolchain & RAG |
+| ![Groq](https://img.shields.io/badge/Groq-00A67E?style=flat-square) | Ultra-fast LLM inference |
+| ![ChromaDB](https://img.shields.io/badge/ChromaDB-F97316?style=flat-square) | Vector database |
+| ![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=flat-square&logo=pydantic&logoColor=white) | Data validation & schemas |
+| ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=flat-square&logo=huggingface&logoColor=black) | Sentence embeddings |
 
 ### Frontend
 
-The frontend is deployed on Vercel and can be accessed at
+| Tool | Purpose |
+|------|---------|
+| ![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black) | UI framework |
+| ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white) | Build tool & dev server |
+| ![Axios](https://img.shields.io/badge/Axios-5A29E4?style=flat-square&logo=axios&logoColor=white) | HTTP client |
 
-[plan-my-trip-ruby.vercel.app]().
+### External APIs
 
-Made with ❤️ by Nishant sharma
+| API | Usage |
+|-----|-------|
+| **Groq API** | LLM completions |
+| **OpenWeather API** | Live weather data |
+| **Serper API** | Real-time web search |
+
+---
+
+## 📂 Project Structure
+
+```
+PlanMyTrip/
+│
+├── client/                          # React + Vite Frontend
+│   └── src/
+│       ├── pages/                   # Page-level components
+│       ├── components/              # Reusable UI components
+│       └── services/                # API service layer (Axios)
+│
+├── server/                          # FastAPI Backend
+│   ├── app/
+│   │   ├── api/                     # Route handlers
+│   │   ├── graph/
+│   │   │   ├── nodes/               # LangGraph node definitions
+│   │   │   │   ├── rag_node.py
+│   │   │   │   ├── weather_node.py
+│   │   │   │   ├── search_node.py
+│   │   │   │   ├── planner_node.py
+│   │   │   │   └── optimizer_node.py
+│   │   │   └── builder.py           # LangGraph graph builder
+│   │   ├── prompts/                 # LLM prompt templates
+│   │   ├── schemas/                 # Pydantic models
+│   │   ├── services/                # Business logic
+│   │   ├── vectorstore/             # ChromaDB interface
+│   │   ├── loaders/                 # PDF & URL loaders
+│   │   └── scripts/
+│   │       └── ingest.py            # RAG ingestion script
+│   │
+│   ├── data/
+│   │   ├── delhi/
+│   │   │   └── Delhi.pdf            # Travel knowledge base
+│   │   └── urls.txt                 # Tourism website URLs
+│   │
+│   └── chroma_db/                   # Persisted vector store
+│
+└── README.md
+```
+
+---
+
+## 🔍 RAG Pipeline
+
+### Knowledge Sources
+
+| Source | Contents |
+|--------|----------|
+| 📄 `Delhi.pdf` | Attractions, hotels, restaurants, transport, budget info |
+| 🌐 Tourism Websites | Delhi Tourism, Incredible India, travel & restaurant guides |
+
+### Embedding Model
+
+```python
+from langchain_huggingface import HuggingFaceEmbeddings
+
+embeddings = HuggingFaceEmbeddings(
+    model_name="BAAI/bge-small-en-v1.5"
+)
+```
+
+> All documents are chunked, embedded, and stored in **ChromaDB** for semantic retrieval at query time.
+
+---
+
+## ⚙️ Installation
+
+### Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- API keys for Groq, OpenWeather, and Serper
+
+---
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone <repo-url>
+cd PlanMyTrip
+```
+
+### 2️⃣ Backend Setup
+
+```bash
+cd server
+
+# Create and activate virtual environment
+python -m venv venv
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # macOS/Linux
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+Create a `.env` file in the `server/` directory:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+OPENWEATHER_API_KEY=your_openweather_api_key
+SERPER_API_KEY=your_serper_api_key
+```
+
+### 3️⃣ Frontend Setup
+
+```bash
+cd client
+npm install
+```
+
+Create a `.env` file in the `client/` directory:
+
+```env
+VITE_BASE_URL=http://127.0.0.1:8000
+```
+
+### 4️⃣ Build the RAG Knowledge Base
+
+Place your PDFs inside `server/data/delhi/` and add website URLs to `server/data/urls.txt`, then run:
+
+```bash
+python -m app.scripts.ingest
+```
+
+### 5️⃣ Run the Application
+
+```bash
+# Terminal 1 — Start Backend
+cd server
+uvicorn app.main:app --reload
+
+# Terminal 2 — Start Frontend
+cd client
+npm run dev
+```
+
+> Frontend runs at `http://localhost:5173` · Backend at `http://127.0.0.1:8000`
+
+---
+
+## 📡 API Reference
+
+### `POST /api/trip/generate`
+Generate a personalized travel itinerary.
+
+**Request Body:**
+```json
+{
+  "city": "Delhi",
+  "budget": 15000,
+  "start_date": "2026-06-10",
+  "end_date": "2026-06-14",
+  "travellers": 2,
+  "preferred_cuisine": "North Indian",
+  "travel_type": "Family",
+  "additional_info": "Less walking"
+}
+```
+
+**Response:**
+```json
+{
+  "summary": "4-day personalized Delhi itinerary",
+  "accommodation_suggestion": "The Claridges",
+  "estimated_total_cost": 14000,
+  "days": [
+    {
+      "day": 1,
+      "breakfast": { "restaurant": "...", "dish": "...", "cost": 300 },
+      "lunch":     { "restaurant": "...", "dish": "...", "cost": 500 },
+      "dinner":    { "restaurant": "...", "dish": "...", "cost": 600 },
+      "activities": ["Red Fort", "Chandni Chowk", "Jama Masjid"]
+    }
+  ]
+}
+```
+
+---
+
+### `POST /api/trip/pdf`
+Generate and download a PDF version of the itinerary.
+
+---
+
+### `GET /api/rag/search`
+Test RAG retrieval with a query parameter.
+
+```
+GET /api/rag/search?q=budget hotels in Delhi
+```
+
+---
+
+## 🚀 Future Improvements
+
+- [ ] Multi-city trip support
+- [ ] User authentication & trip history
+- [ ] Conversational itinerary editing
+- [ ] Hotel & restaurant booking integration
+- [ ] Live transportation APIs
+- [ ] Multi-language support
+- [ ] Recommendation feedback loop
+- [ ] Mobile app (React Native)
+
+---
+
+## 👨‍💻 Author
+
+<table>
+<tr>
+<td align="center">
+<strong>Ritik Saini</strong><br/>
+B.Tech Computer Engineering<br/>
+IIIT Bhubaneswar<br/>
+<br/>
+<em>Built with LangGraph · FastAPI · Groq · ChromaDB · React</em>
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+<sub>If you found this project useful, consider giving it a ⭐ on GitHub!</sub>
+
+</div>
