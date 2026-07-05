@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Depends
 from fastapi.responses import FileResponse
+from app.security import get_current_user
 
 from app.services.pdf_service import (
     create_trip_pdf
@@ -17,9 +18,9 @@ router = APIRouter(
 
 
 @router.post("/generate")
-
 def generate_trip_plan(
-        request: TripRequest
+        request: TripRequest,
+        current_user=Depends(get_current_user)
 ):
 
     result = graph.invoke(

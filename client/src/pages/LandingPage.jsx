@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 
 const NAV_LINKS = [];
 
+const API_BASE = "http://localhost:8000";
+
 const FEATURE_CARDS = [
   {
     href: "/create-trip",
@@ -54,14 +56,289 @@ function StarRating({ count }) {
   );
 }
 
+// ---------------------------------------------------------------------
+// Reusable auth modal — handles its own submit state + error display so
+// the login and signup forms don't duplicate this logic.
+// ---------------------------------------------------------------------
+function AuthModal({ mode, onClose, onSwitchMode, onSuccess }) {
+  const isSignup = mode === "signup";
+  const [fields, setFields] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const update = (key) => (e) => {
+    setFields((f) => ({ ...f, [key]: e.target.value }));
+    if (error) setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
+
+    const endpoint = isSignup ? "/signup" : "/login";
+    const payload = isSignup
+      ? fields
+      : { email: fields.email, password: fields.password };
+
+    try {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        // non-JSON response body — fall through to generic error below
+      }
+
+      if (!res.ok) {
+        // FastAPI's HTTPException puts the message in `detail`
+        setError(data.detail || data.message || "Something went wrong. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      if (isSignup) {
+        // Signed up successfully — send them straight into the login form
+        onSwitchMode("login", { email: fields.email });
+        setSubmitting(false);
+        return;
+      }
+
+      onSuccess(data.user || { email: fields.email });
+    } catch {
+      setError("Couldn't reach the server. Check your connection and try again.");
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(14,9,5,0.72)",
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 9999,
+        padding: 20,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="jost"
+        style={{
+          background: "#1C1410",
+          border: "1px solid rgba(250,247,242,0.08)",
+          borderRadius: 8,
+          width: 400,
+          maxWidth: "100%",
+          padding: "36px 32px 32px",
+          position: "relative",
+          boxShadow: "0 30px 80px rgba(0,0,0,0.5)",
+        }}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          style={{
+            position: "absolute",
+            top: 18,
+            right: 18,
+            background: "transparent",
+            border: "none",
+            color: "rgba(250,247,242,0.45)",
+            fontSize: 20,
+            cursor: "pointer",
+            lineHeight: 1,
+            padding: 4,
+          }}
+        >
+          ×
+        </button>
+
+        <span style={{ width: 40, height: 2, background: "#C4692A", display: "block", marginBottom: 20 }} />
+        <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 30, fontWeight: 600, color: "#FAF7F2", marginBottom: 6 }}>
+          {isSignup ? "Create an account" : "Welcome back"}
+        </h2>
+        <p style={{ fontSize: 13, color: "rgba(250,247,242,0.5)", marginBottom: 28, fontWeight: 300 }}>
+          {isSignup ? "Start planning your Delhi trip with AI." : "Log in to pick up where you left off."}
+        </p>
+
+        {error && (
+          <div
+            role="alert"
+            style={{
+              background: "rgba(196,60,42,0.12)",
+              border: "1px solid rgba(196,60,42,0.35)",
+              color: "#E38E7E",
+              fontSize: 13,
+              padding: "11px 14px",
+              borderRadius: 4,
+              marginBottom: 20,
+              lineHeight: 1.5,
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          {isSignup && (
+            <label style={{ display: "block", marginBottom: 14 }}>
+              <span style={fieldLabelStyle}>Name</span>
+              <input
+                required
+                value={fields.name}
+                onChange={update("name")}
+                placeholder="Your full name"
+                style={inputStyle}
+              />
+            </label>
+          )}
+
+          <label style={{ display: "block", marginBottom: 14 }}>
+            <span style={fieldLabelStyle}>Email</span>
+            <input
+              required
+              type="email"
+              value={fields.email}
+              onChange={update("email")}
+              placeholder="you@example.com"
+              style={inputStyle}
+            />
+          </label>
+
+          <label style={{ display: "block", marginBottom: 6 }}>
+            <span style={fieldLabelStyle}>Password</span>
+            <input
+              required
+              type="password"
+              minLength={isSignup ? 8 : undefined}
+              value={fields.password}
+              onChange={update("password")}
+              placeholder={isSignup ? "At least 8 characters" : "Your password"}
+              style={inputStyle}
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={submitting}
+            className="btn-primary"
+            style={{
+              width: "100%",
+              marginTop: 20,
+              opacity: submitting ? 0.6 : 1,
+              cursor: submitting ? "not-allowed" : "pointer",
+            }}
+          >
+            {submitting ? (isSignup ? "Creating account…" : "Logging in…") : isSignup ? "Sign Up" : "Login"}
+          </button>
+        </form>
+
+        <p style={{ fontSize: 13, color: "rgba(250,247,242,0.5)", textAlign: "center", marginTop: 22 }}>
+          {isSignup ? "Already have an account?" : "Don't have an account?"}{" "}
+          <button
+            onClick={() => onSwitchMode(isSignup ? "login" : "signup")}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#C4692A",
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 500,
+              padding: 0,
+              textDecoration: "underline",
+              textUnderlineOffset: 3,
+            }}
+          >
+            {isSignup ? "Log in" : "Sign up"}
+          </button>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const fieldLabelStyle = {
+  display: "block",
+  fontSize: 11,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "rgba(250,247,242,0.55)",
+  marginBottom: 6,
+  fontWeight: 500,
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 4,
+  border: "1px solid rgba(250,247,242,0.14)",
+  background: "#241A12",
+  color: "#FAF7F2",
+  fontSize: 14,
+  outline: "none",
+};
+
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [authModal, setAuthModal] = useState(null); // null | "login" | "signup"
+
+  const [user, setUser] = useState(null); // null while logged out, { email } once known
+  const [authChecked, setAuthChecked] = useState(false);
+
+  // Check whether a session cookie is already valid on page load
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/me`, { credentials: "include" });
+        if (!cancelled && res.ok) {
+          const data = await res.json();
+          setUser(data);
+        }
+      } catch {
+        // network error / not logged in — leave user as null
+      } finally {
+        if (!cancelled) setAuthChecked(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handler);
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } finally {
+      setUser(null);
+    }
+  };
+
+  const openModal = (mode, prefill) => {
+    setAuthModal(mode);
+  };
 
   return (
     <main style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", background: "#FAF7F2", color: "#1C1410", overflowX: "hidden" }}>
@@ -99,6 +376,7 @@ export default function LandingPage() {
           text-decoration: none;
           font-weight: 400;
           transition: background 0.2s, border-color 0.2s;
+          cursor: pointer;
         }
         .btn-ghost:hover { background: rgba(250,247,242,0.1); border-color: #FAF7F2; }
         .trip-card {
@@ -120,14 +398,18 @@ export default function LandingPage() {
         .hero-animate-d1 { animation-delay: 0.15s; }
         .hero-animate-d2 { animation-delay: 0.35s; }
         .hero-animate-d3 { animation-delay: 0.55s; }
-        .nav-link { 
-          font-family:'Jost',sans-serif; font-size:13px; letter-spacing:0.08em; text-transform:uppercase; 
+        .nav-link {
+          font-family:'Jost',sans-serif; font-size:13px; letter-spacing:0.08em; text-transform:uppercase;
           color: rgba(250,247,242,0.8); text-decoration:none; transition:color 0.2s; padding: 4px 0;
-          border-bottom: 1px solid transparent; transition: color 0.2s, border-color 0.2s;
+          border-bottom: 1px solid transparent;
         }
         .nav-link:hover { color: #FAF7F2; border-bottom-color: #C4692A; }
         .review-card { background: #fff; border-radius: 4px; padding: 32px; border-left: 3px solid #C4692A; }
         input, textarea, select { font-family: 'Jost', sans-serif !important; }
+        input:focus {
+          border-color: #C4692A !important;
+          box-shadow: 0 0 0 3px rgba(196,105,42,0.18);
+        }
       `}</style>
 
       {/* NAV */}
@@ -147,8 +429,23 @@ export default function LandingPage() {
         <div style={{ display: "flex", gap: 36, alignItems: "center" }}>
           {NAV_LINKS.map(l => <a key={l} href="#" className="nav-link">{l}</a>)}
         </div>
-        <div style={{ display: "flex", gap: 12 }}>
-          <a href="/create-trip" className="btn-primary" style={{ padding: "10px 24px", fontSize: 12 }}>Get Started</a>
+
+        {/* Auth-aware nav actions: skip rendering until we know the auth state,
+            to avoid a Login/Signup flash for users who are already logged in. */}
+        <div style={{ display: "flex", gap: 12, alignItems: "center", minWidth: 180, justifyContent: "flex-end" }}>
+          {!authChecked ? null : user ? (
+            <>
+              <span className="jost" style={{ color: "rgba(250,247,242,0.7)", fontSize: 13 }}>
+                {user.email}
+              </span>
+              <button className="btn-ghost" onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            <>
+              <button className="btn-ghost" onClick={() => openModal("login")}>Login</button>
+              <button className="btn-primary" onClick={() => openModal("signup")}>Sign Up</button>
+            </>
+          )}
         </div>
       </nav>
 
@@ -186,7 +483,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* scroll hint */}
         <div style={{ position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)", zIndex: 1 }}>
           <div style={{ width: 1, height: 60, background: "linear-gradient(to bottom, rgba(196,105,42,0.8), transparent)", margin: "0 auto" }} />
         </div>
@@ -452,33 +748,19 @@ export default function LandingPage() {
               }}
             >
               <h2 style={{ marginBottom: "20px" }}>Contact Developer</h2>
-
-              <p>
-                📞 <strong>Phone:</strong> 8929892878
-              </p>
-
+              <p>📞 <strong>Phone:</strong> 8929892878</p>
               <p>
                 📧 <strong>Email:</strong>{" "}
-                <a
-                  href="mailto:ritiksaini022006@gmail.com"
-                  style={{ color: "#C4692A" }}
-                >
+                <a href="mailto:ritiksaini022006@gmail.com" style={{ color: "#C4692A" }}>
                   ritiksaini022006@gmail.com
                 </a>
               </p>
-
               <p>
                 💼 <strong>LinkedIn:</strong>{" "}
-                <a
-                  href="https://www.linkedin.com/in/ritik-sa0201/"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: "#C4692A" }}
-                >
+                <a href="https://www.linkedin.com/in/ritik-sa0201/" target="_blank" rel="noreferrer" style={{ color: "#C4692A" }}>
                   View Profile
                 </a>
               </p>
-
               <button
                 onClick={() => setShowContact(false)}
                 style={{
@@ -497,6 +779,18 @@ export default function LandingPage() {
           </div>
         )}
       </footer>
+
+      {authModal && (
+        <AuthModal
+          mode={authModal}
+          onClose={() => setAuthModal(null)}
+          onSwitchMode={(mode) => setAuthModal(mode)}
+          onSuccess={(u) => {
+            setUser(u);
+            setAuthModal(null);
+          }}
+        />
+      )}
     </main>
   );
 }

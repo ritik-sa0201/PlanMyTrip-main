@@ -15,6 +15,44 @@ function CalendarIcon(props) {
   )
 }
 
+function AlertIcon(props) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+  )
+}
+
+// Turns whatever the backend / axios throws into one readable sentence.
+function extractErrorMessage(error) {
+  if (error.response) {
+    const { status, data } = error.response
+
+    // FastAPI validation errors (422) come back as an array of {msg, loc, ...}
+    if (Array.isArray(data?.detail)) {
+      const first = data.detail[0]
+      const field = Array.isArray(first?.loc) ? first.loc[first.loc.length - 1] : null
+      return field ? `${field}: ${first.msg}` : first?.msg || "Please check the form and try again."
+    }
+
+    if (typeof data?.detail === "string") {
+      return data.detail
+    }
+
+    if (status === 401) return "Your session has expired. Please log in again to create a trip."
+    if (status === 400) return "That trip request doesn't look right. Please check the details and try again."
+    if (status === 502) return "Our AI planner couldn't finish your itinerary. Please try again in a moment."
+    if (status >= 500) return "Something went wrong on our end. Please try again shortly."
+    return "Something went wrong. Please try again."
+  }
+
+  if (error.request) {
+    return "Couldn't reach the server. Check your connection and try again."
+  }
+
+  return "Something went wrong. Please try again."
+}
+
 // ── Main Component ─────────────────────────────────────────
 export default function CreateTripPage() {
   const [date, setDate] = useState({ from: new Date(), to: addDays(new Date(), 7) })
@@ -26,6 +64,8 @@ export default function CreateTripPage() {
   const [additionalInfo, setAdditionalInfo] = useState("")
   const [loading, setLoading] = useState(false)
   const [calOpen, setCalOpen] = useState(false)
+  const [error, setError] = useState("")
+  const [sessionExpired, setSessionExpired] = useState(false)
   const navigate = useNavigate()
 
   // Cities — only Delhi supported now; extend this array to unlock more
@@ -33,9 +73,26 @@ export default function CreateTripPage() {
   const CUISINES = ["North Indian", "South Indian", "Street Food", "Vegetarian", "Chinese"]
   const TRAVEL_TYPES = ["Family", "Adventure", "Relaxation", "Couple", "Solo"]
 
+  const validate = () => {
+    if (!date?.from || !date?.to) return "Please pick your travel dates."
+    if (date.from >= date.to) return "Your end date needs to be after your start date."
+    if (!budget || Number(budget) <= 0) return "Please enter a budget greater than zero."
+    if (!preferredCuisine) return "Please select a preferred cuisine."
+    if (!travelType) return "Please select a travel type."
+    return ""
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!date?.from || !date?.to) return
+    setError("")
+    setSessionExpired(false)
+
+    const validationError = validate()
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
     setLoading(true)
     try {
       const response = await axios.post(
@@ -50,13 +107,18 @@ export default function CreateTripPage() {
           travel_type: travelType,
           additional_info: additionalInfo,
         },
-        { headers: { "Content-Type": "application/json" } }
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
       )
       if (response.status === 200) {
         navigate("/travel", { state: response.data })
       }
-    } catch (error) {
-      console.error("Error generating itinerary:", error)
+    } catch (err) {
+      console.error("Error generating itinerary:", err)
+      setError(extractErrorMessage(err))
+      if (err.response?.status === 401) setSessionExpired(true)
     } finally {
       setLoading(false)
     }
@@ -120,8 +182,26 @@ export default function CreateTripPage() {
 
         .planner-subheading {
           font-size: 14px; font-weight: 300;
-          color: #8B7466; margin-bottom: 44px; line-height: 1.7;
+          color: #8B7466; margin-bottom: 36px; line-height: 1.7;
           max-width: 620px;
+        }
+
+        .error-banner {
+          display: flex; align-items: flex-start; gap: 10px;
+          background: rgba(178,52,38,0.06);
+          border: 1px solid rgba(178,52,38,0.25);
+          color: #A33D2C;
+          padding: 14px 16px;
+          border-radius: 3px;
+          font-size: 13.5px;
+          line-height: 1.6;
+          margin-bottom: 32px;
+        }
+        .error-banner svg { flex-shrink: 0; margin-top: 1px; }
+        .error-banner-link {
+          color: #A33D2C; text-decoration: underline; text-underline-offset: 2px;
+          font-weight: 500; cursor: pointer; background: none; border: none;
+          padding: 0; font-size: 13.5px; font-family: 'Jost', sans-serif;
         }
 
         .divider { height: 1px; background: #EDE8E3; margin: 32px 0; }
@@ -150,10 +230,11 @@ export default function CreateTripPage() {
           color: #1C1410; background: #FAF7F2;
           border: 1px solid #DDD4CC; border-radius: 2px;
           outline: none; appearance: none;
-          transition: border-color 0.2s, background 0.2s;
+          transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
         }
         .planner-select:focus, .planner-input:focus, .planner-textarea:focus {
           border-color: #C4692A; background: #fff;
+          box-shadow: 0 0 0 3px rgba(196,105,42,0.12);
         }
         .planner-select:disabled {
           cursor: not-allowed; opacity: 0.7;
@@ -260,7 +341,24 @@ export default function CreateTripPage() {
             Tell us your budget, travel dates, cuisine preferences, and travel style. Our AI will generate a personalized day-by-day itinerary using travel knowledge, live weather intelligence, and real-time search.
           </p>
 
-          <form onSubmit={handleSubmit}>
+          {error && (
+            <div className="error-banner" role="alert">
+              <AlertIcon />
+              <span>
+                {error}
+                {sessionExpired && (
+                  <>
+                    {" "}
+                    <button type="button" className="error-banner-link" onClick={() => navigate("/")}>
+                      Go log in
+                    </button>
+                  </>
+                )}
+              </span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate>
             <div className="form-grid">
 
               {/* City */}
@@ -329,9 +427,13 @@ export default function CreateTripPage() {
                       selected={date}
                       onSelect={(d) => { setDate(d); if (d?.from && d?.to) setCalOpen(false); }}
                       numberOfMonths={2}
+                      disabled={{ before: new Date() }}
                     />
                   </PopoverContent>
                 </Popover>
+                {date?.from && date?.to && date.from >= date.to && (
+                  <span className="field-hint">End date must be after the start date</span>
+                )}
               </div>
 
               {/* Travellers */}

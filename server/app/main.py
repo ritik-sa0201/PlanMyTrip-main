@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.test import router as test_router
 from app.api.rag import router as rag_router
 from app.api.trip import router as trip_router
-
+from app.api.auth import router as auth_router
+from app.database import users
 
 app = FastAPI(
     title="Trip Planner API",
@@ -26,6 +27,7 @@ app.include_router(
 
 app.include_router(test_router)
 app.include_router(trip_router)
+app.include_router(auth_router)
 
 @app.get("/")
 def root():
