@@ -5,11 +5,6 @@ langchain-core==0.3.74
 langchain-community==0.3.27
 langgraph==0.6.6
 langchain-groq==0.3.7
-langchain==0.3.27
-langchain-core==0.3.74
-langchain-community==0.3.27
-langgraph==0.6.6
-langchain-groq==0.3.7
 chromadb==1.0.20
 langchain-chroma==0.2.5
 langchain-huggingface==0.3.1
@@ -25,3 +20,7 @@ tenacity==9.1.2
 structlog==25.4.0
 python-multipart==0.0.20
 cohere==4.54.0
+reportlab==4.2.0
+passlib==1.7.4
+python-jose==3.3.0
+email-validator==2.2.0
