@@ -16,8 +16,6 @@ def get_weather(city: str):
 
     data = response.json()
 
-    print(data)  # IMPORTANT
-
     if "main" not in data:
 
         return {

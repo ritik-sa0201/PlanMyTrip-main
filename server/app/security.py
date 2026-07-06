@@ -53,13 +53,11 @@ def get_current_user(
         )
 
     try:
-        print("Cookie:", access_token)
         payload = jwt.decode(
             access_token,
             SECRET_KEY,
             algorithms=[ALGORITHM]
         )
-        print(payload)
 
         email = payload.get("sub")
 

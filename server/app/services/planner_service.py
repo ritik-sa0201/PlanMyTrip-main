@@ -1,4 +1,5 @@
 from langchain_core.prompts import ChatPromptTemplate
+import langsmith
 
 from app.llm.groq_client import llm
 
@@ -12,6 +13,10 @@ structured_llm = llm.with_structured_output(
 )
 
 
+@langsmith.traceable(
+    name="generate_trip",
+    metadata={"ls_provider": "langchain", "ls_project": "PlanMyTrip"}
+)
 def generate_trip(
         city,
         budget,

@@ -1,6 +1,11 @@
 from app.vectorstore.retriever import retriever
+from langsmith import traceable
 
 
+@traceable(
+    name="rag_node",
+    metadata={"ls_provider": "langchain", "ls_project": "PlanMyTrip"}
+)
 def rag_node(state):
 
     user = state["user_input"]

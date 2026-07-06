@@ -1,7 +1,12 @@
 from app.services.serper_service import google_search
 from datetime import datetime
+import langsmith
 
 
+@langsmith.traceable(
+    name="search_node",
+    metadata={"ls_provider": "langchain", "ls_project": "PlanMyTrip"}
+)
 def search_node(state):
 
     user = state["user_input"]

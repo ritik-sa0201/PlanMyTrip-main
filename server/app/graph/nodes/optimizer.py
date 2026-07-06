@@ -1,5 +1,6 @@
 from app.llm.groq_client import llm
 from app.schemas.response import TripResponse
+import langsmith
 
 
 structured_llm = llm.with_structured_output(
@@ -7,6 +8,10 @@ structured_llm = llm.with_structured_output(
 )
 
 
+@langsmith.traceable(
+    name="optimizer_node",
+    metadata={"ls_provider": "langchain", "ls_project": "PlanMyTrip"}
+)
 def optimizer_node(state):
 
     user = state["user_input"]

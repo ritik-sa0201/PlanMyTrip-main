@@ -1,6 +1,11 @@
 from app.services.planner_service import generate_trip
+import langsmith
 
 
+@langsmith.traceable(
+    name="planner_node",
+    metadata={"ls_provider": "langchain", "ls_project": "PlanMyTrip"}
+)
 def planner_node(state):
 
     user = state["user_input"]
@@ -25,8 +30,6 @@ def planner_node(state):
         + "\n"
         + state["search_context"]
     )
-    print(state["weather_context"])
-    print(state["search_context"])
     trip = result.model_dump()
 
     trip["budget_remaining"] = (

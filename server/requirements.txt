@@ -5,10 +5,15 @@ langchain-core==0.3.74
 langchain-community==0.3.27
 langgraph==0.6.6
 langchain-groq==0.3.7
+langchain==0.3.27
+langchain-core==0.3.74
+langchain-community==0.3.27
+langgraph==0.6.6
+langchain-groq==0.3.7
 chromadb==1.0.20
 langchain-chroma==0.2.5
 langchain-huggingface==0.3.1
-sentence-transformers==5.1.0
+langsmith==0.1.102
 pypdf==6.0.0
 python-dotenv==1.1.1
 pydantic==2.11.7
@@ -19,3 +24,4 @@ orjson==3.11.2
 tenacity==9.1.2
 structlog==25.4.0
 python-multipart==0.0.20
+cohere==4.54.0

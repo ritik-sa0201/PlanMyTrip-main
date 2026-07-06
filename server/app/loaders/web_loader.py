@@ -15,12 +15,8 @@ def load_websites(urls):
 
             all_docs.extend(docs)
 
-            print(f"Loaded: {url}")
-
         except Exception as e:
 
-            print(f"Failed: {url}")
-
-            print(e)
+            pass
 
     return all_docs

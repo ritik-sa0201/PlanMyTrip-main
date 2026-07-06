@@ -5,6 +5,15 @@ from app.api.rag import router as rag_router
 from app.api.trip import router as trip_router
 from app.api.auth import router as auth_router
 from app.database import users
+from app.config.settings import settings
+import os
+
+# Set up LangSmith environment variables
+os.environ["LANGCHAIN_TRACING_V2"] = str(settings.LANGCHAIN_TRACING_V2).lower()
+os.environ["LANGCHAIN_ENDPOINT"] = settings.LANGCHAIN_ENDPOINT
+os.environ["LANGCHAIN_PROJECT"] = settings.LANGCHAIN_PROJECT
+if hasattr(settings, 'LANGCHAIN_API_KEY') and settings.LANGCHAIN_API_KEY:
+    os.environ["LANGCHAIN_API_KEY"] = settings.LANGCHAIN_API_KEY
 
 app = FastAPI(
     title="Trip Planner API",

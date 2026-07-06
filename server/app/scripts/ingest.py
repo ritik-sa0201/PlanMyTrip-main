@@ -1,3 +1,4 @@
+import uuid
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -36,18 +37,6 @@ website_docs = load_websites(
 # Merge PDF + Website Data
 documents = pdf_docs + website_docs
 
-print(
-    f"PDF Docs: {len(pdf_docs)}"
-)
-
-print(
-    f"Website Docs: {len(website_docs)}"
-)
-
-print(
-    f"Total Docs: {len(documents)}"
-)
-
 
 # Chunking
 splitter = RecursiveCharacterTextSplitter(
@@ -60,17 +49,19 @@ chunks = splitter.split_documents(
 )
 
 
+# Add unique IDs to each chunk for reliable retrieval
+for i, chunk in enumerate(chunks):
+    chunk.metadata["id"] = str(uuid.uuid4())
+
+
 # Metadata
 for chunk in chunks:
-
     chunk.metadata["city"] = "Delhi"
 
 
-# Store in Chroma
+# Store in ChromaDB with explicit IDs
+ids = [chunk.metadata["id"] for chunk in chunks]
 vector_store.add_documents(
-    chunks
-)
-
-print(
-    f"Inserted {len(chunks)} chunks"
+    documents=chunks,
+    ids=ids
 )

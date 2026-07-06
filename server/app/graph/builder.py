@@ -1,4 +1,4 @@
-from langgraph.graph import StateGraph
+from langgraph.graph import StateGraph, START
 
 from app.graph.state import TripState
 
@@ -6,75 +6,57 @@ from app.graph.nodes.rag import rag_node
 from app.graph.nodes.weather import weather_node
 from app.graph.nodes.search import search_node
 from app.graph.nodes.planner import planner_node
-from app.graph.nodes.generator import generator_node
 from app.graph.nodes.budget_optimizer import budget_optimizer_node
+from app.graph.nodes.generator import generator_node
 
 
-workflow = StateGraph(
-    TripState
-)
 
-workflow.add_node(
-    "rag",
-    rag_node
-)
+def safe_rag_node(state):
+    try:
+        return rag_node(state)
+    except Exception as e:
+        return {"rag_context": ""}
 
-workflow.add_node(
-    "weather",
-    weather_node
-)
 
-workflow.add_node(
-    "search",
-    search_node
-)
+def safe_weather_node(state):
+    try:
+        return weather_node(state)
+    except Exception as e:
+        return {"weather_context": ""}
 
-workflow.add_node(
-    "planner",
-    planner_node
-)
 
-workflow.add_node(
-    "budget_optimizer",
-    budget_optimizer_node
-)
+def safe_search_node(state):
+    try:
+        return search_node(state)
+    except Exception as e:
+        return {"search_context": ""}
 
-workflow.add_node(
-    "generator",
-    generator_node
-)
 
-workflow.set_entry_point(
-    "rag"
-)
+workflow = StateGraph(TripState)
 
-workflow.add_edge(
-    "rag",
-    "weather"
-)
+# Nodes with error handling
+workflow.add_node("rag", safe_rag_node)
+workflow.add_node("weather", safe_weather_node)
+workflow.add_node("search", safe_search_node)
+workflow.add_node("planner", planner_node)
+workflow.add_node("budget_optimizer", budget_optimizer_node)
+workflow.add_node("generator", generator_node)
 
-workflow.add_edge(
-    "weather",
-    "search"
-)
+# Edges: fan-in from START to the three parallel nodes
+workflow.add_edge(START, "rag")
+workflow.add_edge(START, "weather")
+workflow.add_edge(START, "search")
 
-workflow.add_edge(
-    "search",
-    "planner"
-)
+# Edges: each of the three nodes feeds into planner (planner waits for all)
+workflow.add_edge("rag", "planner")
+workflow.add_edge("weather", "planner")
+workflow.add_edge("search", "planner")
 
-workflow.add_edge(
-    "planner",
-    "budget_optimizer"
-)
+# Remaining linear edges
+workflow.add_edge("planner", "budget_optimizer")
+workflow.add_edge("budget_optimizer", "generator")
 
-workflow.add_edge(
-    "budget_optimizer",
-    "generator"
-)
-
-workflow.set_finish_point(
-    "generator"
-)
+# Set finish point
+workflow.set_finish_point("generator")
 
 graph = workflow.compile()
