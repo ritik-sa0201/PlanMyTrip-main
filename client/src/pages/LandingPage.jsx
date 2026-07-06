@@ -8,7 +8,7 @@ const API_BASE = "http://localhost:8000";
 const FEATURE_CARDS = [
   {
     href: "/create-trip",
-    img: "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=800&q=80",
+    img: "https://cdn.vectorstock.com/i/500p/21/15/taj-mahal-indian-monument-vector-59802115.jpg",
     title: "AI-Powered Itinerary Generation",
     tag: "Core Feature",
     days: "Multi-Day",
@@ -16,7 +16,7 @@ const FEATURE_CARDS = [
   },
   {
     href: "/create-trip",
-    img: "https://images.indianexpress.com/2025/05/WhatsApp-Image-2025-05-16-at-18.38.46-2.jpeg?w=1200",
+    img: "https://img.magnific.com/premium-vector/india-building-architecture-scenery_18591-50010.jpg?semt=ais_hybrid&w=740&q=80",
     title: "Weather-Aware Planning",
     tag: "Live Intelligence",
     days: "Real-Time",
@@ -24,7 +24,7 @@ const FEATURE_CARDS = [
   },
   {
     href: "/create-trip",
-    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&q=80",
+    img: "https://media.istockphoto.com/id/928865756/vector/red-fort-new-delhi-india-detailed-vector-sketch-illustration.jpg?s=612x612&w=0&k=20&c=vsJQV6HRg6A3ddjgAAd5eOIelT_6c9Ps7fuoeob2EWE=",
     title: "Real-Time Travel Search",
     tag: "Web Search",
     days: "Always Current",
@@ -32,7 +32,7 @@ const FEATURE_CARDS = [
   },
   {
     href: "/create-trip",
-    img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80",
+    img: "https://cdn.vectorstock.com/i/1000v/50/49/indian-building-monuments-icon-cartoon-vector-25975049.jpg",
     title: "Budget Optimization",
     tag: "Smart Finance",
     days: "Cost-Aware",
@@ -598,7 +598,7 @@ export default function LandingPage() {
             </div>
             <div style={{ position: "relative" }}>
               <img
-                src="https://images.unsplash.com/photo-1609920658906-8223bd289001?w=800&q=80"
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYnx-7pUOZdww-3CErdHnm_olkYAms5seELcg1S354MF3lzr-xTxqI0v_l&s=10"
                 alt="India travel"
                 style={{ width: "100%", height: 520, objectFit: "cover", borderRadius: 4 }}
               />
