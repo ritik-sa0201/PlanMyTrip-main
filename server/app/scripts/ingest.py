@@ -8,7 +8,7 @@ from app.vectorstore.chroma_client import vector_store
 
 # PDF
 pdf_loader = PyPDFLoader(
-    "data/delhi/Delhi.pdf"
+    "data/delhi/delhi.pdf"
 )
 
 pdf_docs = pdf_loader.load()

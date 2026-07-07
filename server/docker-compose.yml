@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    container_name: planmytrip
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - chroma-data:/app/chroma_db
+
+    restart: unless-stopped
+
+volumes:
+  chroma-data:
