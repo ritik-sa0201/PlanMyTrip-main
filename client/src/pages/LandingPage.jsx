@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 const NAV_LINKS = [];
 
-const API_BASE = "http://13.207.43.77:8000";
+const API_BASE = "https://planmytripritik.duckdns.org";
 
 const FEATURE_CARDS = [
   {
