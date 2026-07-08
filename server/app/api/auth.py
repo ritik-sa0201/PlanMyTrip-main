@@ -52,8 +52,8 @@ def login(login_data: LoginUser, response: Response):
         value=token,
         httponly=True,
         max_age=1800,
-        samesite="lax",
-        secure=False,  # Change to True in production with HTTPS
+        samesite="none",
+        secure=True,  # Change to True in production with HTTPS
     )
 
     return {
