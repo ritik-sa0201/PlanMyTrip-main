@@ -16,6 +16,9 @@ Built with React · FastAPI · LangGraph · Groq LLM · ChromaDB · RAG · Weath
   <img src="https://img.shields.io/badge/LangGraph-Latest-FF6B35?style=flat-square"/>
   <img src="https://img.shields.io/badge/ChromaDB-Latest-F97316?style=flat-square"/>
   <img src="https://img.shields.io/badge/Groq-LLM-00A67E?style=flat-square"/>
+  <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker&logoColor=white"/>
+  <img src="https://img.shields.io/badge/AWS-EC2-FF9900?style=flat-square&logo=amazonaws&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Nginx-Reverse%20Proxy-009639?style=flat-square&logo=nginx&logoColor=white"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square"/>
 </p>
 
@@ -31,11 +34,13 @@ Built with React · FastAPI · LangGraph · Groq LLM · ChromaDB · RAG · Weath
 - [Features](#-features)
 - [System Architecture](#%EF%B8%8F-system-architecture)
 - [LangGraph Workflow](#-langgraph-workflow)
+- [Deployment Architecture](#-deployment-architecture)
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [RAG Pipeline](#-rag-pipeline)
 - [Authentication](#-authentication)
 - [Installation](#%EF%B8%8F-installation)
+- [Production Deployment](#-production-deployment)
 - [API Reference](#-api-reference)
 - [Example Usage](#-example-usage)
 - [Future Improvements](#-future-improvements)
@@ -46,6 +51,8 @@ Built with React · FastAPI · LangGraph · Groq LLM · ChromaDB · RAG · Weath
 ## 🌍 Overview
 
 **PlanMyTrip AI** is a full-stack intelligent travel planning system. A React/Vite frontend collects trip preferences and renders AI-generated itineraries, while a FastAPI backend orchestrates a **LangGraph** pipeline that combines local knowledge retrieval (RAG), live weather data, and real-time web search to produce practical, budget-aware travel plans — complete with accommodation, restaurant recommendations, transportation guidance, packing advice, and downloadable PDF itineraries. User accounts and authentication are backed by **MongoDB** with JWT-based session handling.
+
+The application is fully containerized and deployed to production using **Docker**, **AWS EC2**, **Nginx**, and **GitHub Actions CI/CD**, with the frontend served separately via **Vercel**.
 
 ---
 
@@ -223,6 +230,221 @@ START
 
 ---
 
+## 🚀 Deployment Architecture
+
+The application runs a fully containerized, production-grade deployment: a **React + Vite** frontend hosted on **Vercel**, talking over HTTPS to a **FastAPI** backend running in **Docker** on an **AWS EC2** instance behind an **Nginx** reverse proxy with **Let's Encrypt** HTTPS. Releases are automated end-to-end with **GitHub Actions CI/CD**, and **ChromaDB** data is preserved across deploys with a **persistent Docker volume**.
+
+✅ React + Vercel · ✅ FastAPI · ✅ Docker · ✅ Docker Compose · ✅ Persistent Docker Volume (ChromaDB) · ✅ EC2 · ✅ Elastic IP · ✅ Nginx Reverse Proxy · ✅ HTTPS (Let's Encrypt) · ✅ GitHub Actions CI/CD · ✅ JWT Cookie Authentication
+
+### Production Deployment Flow
+
+```
+                          USER
+                           │
+                https://planmytrip.vercel.app
+                           │
+                           ▼
+                    Vercel CDN
+                           │
+                 React + Vite Frontend
+                           │
+         Axios (withCredentials = true)
+                           │
+             HTTPS API Request (JWT Cookie)
+                           │
+                           ▼
+        https://planmytripritik.duckdns.org
+                           │
+                  DNS (DuckDNS)
+                           │
+                           ▼
+                  AWS Elastic IP
+                           │
+                           ▼
+             EC2 Ubuntu Instance
+                           │
+                           ▼
+                Nginx Reverse Proxy
+                 (Port 80 / 443)
+                           │
+             Reverse Proxy → localhost:8000
+                           │
+                           ▼
+                 FastAPI + Uvicorn
+                           │
+      ┌────────────────────┼────────────────────┐
+      │                    │                    │
+      ▼                    ▼                    ▼
+  MongoDB             LangGraph            ChromaDB
+ Authentication      AI Workflow        Docker Volume
+      │
+      ▼
+ JWT HttpOnly Cookie
+```
+
+### CI/CD Pipeline
+
+```
+Developer
+    │
+    │ git push origin main
+    ▼
+GitHub Repository
+    │
+    ▼
+GitHub Actions Workflow
+    │
+    │ SSH using Deploy Key
+    ▼
+AWS EC2
+    │
+    │ git pull
+    │ docker compose down
+    │ docker compose build
+    │ docker compose up -d
+    ▼
+Updated Backend Live
+```
+
+### Docker Deployment Flow
+
+```
+Developer Machine
+        │
+        ▼
+    Dockerfile
+        │
+        ▼
+docker compose build
+        │
+        ▼
+   Docker Image
+        │
+        ▼
+docker compose up
+        │
+        ▼
+  Docker Container
+        │
+        ▼
+   Named Volume
+        │
+        ▼
+ChromaDB persists
+even after container recreation
+```
+
+### Backend Request Flow
+
+```
+User Login
+    │
+    ▼
+React Frontend
+    │
+    │ POST /login
+    ▼
+FastAPI
+    │
+    ▼
+Verify Password
+    │
+    ▼
+Generate JWT
+    │
+    ▼
+Set HttpOnly Cookie
+    │
+    ▼
+Browser stores Cookie
+──────────────────────
+Next Request
+    │
+    ▼
+Browser automatically sends Cookie
+    │
+    ▼
+Nginx
+    │
+    ▼
+FastAPI
+    │
+    ▼
+Read Cookie
+    │
+    ▼
+Verify JWT
+    │
+    ▼
+Return Protected Data
+```
+
+### AI Request Flow
+
+```
+User enters trip details
+        │
+        ▼
+    Frontend
+        │
+        │ POST /trip
+        ▼
+     FastAPI
+        │
+        ▼
+    LangGraph
+        │
+────────────────────────────────
+       Parallel Execution
+   RAG · Weather API · Serper Search
+────────────────────────────────
+        │
+        ▼
+   Planner Node
+        │
+        ▼
+  Optimizer Node
+        │
+        ▼
+   Generate PDF
+        │
+        ▼
+  Return itinerary
+```
+
+### Infrastructure Overview
+
+```
+Internet
+    │
+    ▼
+  HTTPS
+    │
+    ▼
+ DuckDNS
+    │
+    ▼
+Elastic IP
+    │
+    ▼
+ AWS EC2
+    │
+    ▼
+  Nginx
+    │
+    ▼
+ FastAPI
+    │
+    ├──▶ MongoDB
+    ├──▶ LangGraph
+    ├──▶ Groq
+    ├──▶ Weather API
+    ├──▶ Serper API
+    └──▶ ChromaDB
+```
+
+---
+
 ## 🛠 Tech Stack
 
 ### Frontend
@@ -278,6 +500,21 @@ START
 | **Serper API** | Real-time web search |
 | **Cohere API** | Retrieval reranking |
 
+### Deployment & Infrastructure
+
+| Tool | Purpose |
+|------|---------|
+| ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) | Containerization of the FastAPI backend |
+| **Docker Compose** | Multi-container orchestration |
+| **Docker Named Volume** | Persists ChromaDB data across container rebuilds |
+| ![AWS EC2](https://img.shields.io/badge/AWS%20EC2-FF9900?style=flat-square&logo=amazonaws&logoColor=white) | Backend hosting (Ubuntu instance) |
+| **Elastic IP** | Static public IP for the EC2 instance |
+| ![Nginx](https://img.shields.io/badge/Nginx-009639?style=flat-square&logo=nginx&logoColor=white) | Reverse proxy (ports 80/443 → localhost:8000) |
+| **Let's Encrypt** | Free HTTPS/TLS certificates |
+| **DuckDNS** | Dynamic DNS for the backend domain |
+| ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=flat-square&logo=githubactions&logoColor=white) | CI/CD pipeline (SSH deploy on push to `main`) |
+| ![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white) | Frontend hosting & CDN |
+
 ---
 
 ## 📂 Project Structure
@@ -315,8 +552,18 @@ PlanMyTrip/
 │   │   │   └── Delhi.pdf            # Travel knowledge base
 │   │   └── urls.txt                 # Tourism website URLs
 │   │
-│   └── chroma_db/                   # Persisted vector store
+│   ├── chroma_db/                   # Persisted vector store (Docker volume)
+│   ├── Dockerfile                   # Backend container definition
+│   └── docker-compose.yml           # Container orchestration
 │
+├── .github/
+│   └── workflows/
+│       └── deploy.yml               # GitHub Actions CI/CD pipeline
+│
+├── nginx/
+│   └── planmytrip.conf              # Nginx reverse proxy config
+│
+├── images/                          # README screenshots
 └── README.md
 ```
 
@@ -362,6 +609,7 @@ All documents are chunked, embedded, and stored in **ChromaDB** for semantic ret
 - Node.js 18+
 - MongoDB instance (local or Atlas)
 - API keys for Groq, OpenWeather, Serper, and Cohere
+- Docker & Docker Compose (for containerized/production setup)
 
 ---
 
@@ -433,6 +681,34 @@ npm run dev
 ```
 
 > Frontend runs at `http://localhost:5173` · Backend at `http://127.0.0.1:8000`
+
+### 6️⃣ Run with Docker (optional, local)
+
+```bash
+cd server
+docker compose up -d --build
+```
+
+> ChromaDB data is persisted in a named Docker volume, so it survives container rebuilds.
+
+---
+
+## 🚀 Production Deployment
+
+The full production release process:
+
+1. Build Docker image
+2. Push source code to GitHub
+3. GitHub Actions triggers automatically
+4. SSH into AWS EC2
+5. Pull latest source
+6. Rebuild Docker image
+7. Restart Docker Compose
+8. Nginx serves HTTPS traffic
+9. Requests are proxied to FastAPI
+10. Docker Volume preserves ChromaDB
+
+The frontend (React + Vite) is deployed separately on **Vercel**, and communicates with the backend over HTTPS using JWT cookies (`axios` with `withCredentials: true`). The backend domain is served through **DuckDNS**, pointing at the EC2 instance's **Elastic IP**, with **Nginx** terminating HTTPS (via **Let's Encrypt**) and reverse-proxying to the FastAPI app running on `localhost:8000` inside Docker.
 
 ---
 
@@ -528,7 +804,7 @@ GET /api/rag/search?q=budget hotels in Delhi
 B.Tech Computer Engineering<br/>
 IIIT Bhubaneswar<br/>
 <br/>
-<em>Built with React · FastAPI · LangGraph · Groq · ChromaDB · MongoDB</em>
+<em>Built with React · FastAPI · LangGraph · Groq · ChromaDB · MongoDB · Docker · AWS EC2 · Nginx</em>
 </td>
 </tr>
 </table>
