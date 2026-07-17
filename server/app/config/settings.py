@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     CHROMA_PATH: str
 
     # Hybrid Search Configuration
-    USE_HYBRID_SEARCH: bool = False
+    USE_HYBRID_SEARCH: bool = True
     TOP_K_VECTOR: int = 10
     TOP_K_BM25: int = 10
     TOP_K_FINAL: int = 30

@@ -1,13 +1,10 @@
 from fastapi import APIRouter,Depends
 from fastapi.responses import FileResponse
 from app.security import get_current_user
-
 from app.services.pdf_service import (
     create_trip_pdf
 )
-
 from app.graph.builder import graph
-
 from app.schemas.request import TripRequest
 
 
@@ -22,7 +19,6 @@ def generate_trip_plan(
         request: TripRequest,
         current_user=Depends(get_current_user)
 ):
-
     result = graph.invoke(
         {
             "user_input": request
@@ -33,24 +29,7 @@ def generate_trip_plan(
 
 
 @router.post("/pdf")
-def generate_pdf(
-        request: TripRequest
-):
-
-    result = graph.invoke(
-        {
-            "user_input":
-            request
-        }
-    )
-
-    create_trip_pdf(
-        result["final_output"],
-        "trip.pdf"
-    )
-
-    return FileResponse(
-        "trip.pdf",
-        media_type="application/pdf",
-        filename="trip.pdf"
-    )
+def generate_pdf(request: TripRequest):
+       return{
+             "message": "this feature is under construction please stay tuned for more updates."
+       }

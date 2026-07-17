@@ -7,7 +7,6 @@ from langsmith import traceable
     metadata={"ls_provider": "langchain", "ls_project": "PlanMyTrip"}
 )
 def rag_node(state):
-
     user = state["user_input"]
 
     query = f"""
@@ -19,10 +18,8 @@ def rag_node(state):
     hotels
     transport
     """
-
-    docs = retriever.invoke(
-        query
-    )
+    
+    docs = retriever(query)
 
     context = "\n\n".join(
         doc.page_content
