@@ -172,61 +172,13 @@ Rich, responsive frontend built with:
 
 ## 🏗️ System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Frontend (React 18 + Vite)                   │
-│   React-Router-DOM · TailwindCSS · Radix UI · Axios · Date-fns  │
-│   Leaflet / React-Leaflet · @react-google-maps/api · Lottie      │
-└────────────────────────────────┬─────────────────────────────────┘
-                                 │ HTTPS (JWT cookie)
-                                 ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    FastAPI Backend (ASGI + Uvicorn)              │
-│        Routes: /auth  ·  /trip  ·  /rag  ·  /test                │
-└───────────┬─────────────────────────────────┬───────────────────┘
-            │                                 │
-            ▼                                 ▼
-┌────────────────────────┐       ┌─────────────────────────────────┐
-│  MongoDB (pymongo)     │       │           LangGraph              │
-│  db: fastapi_db        │       │                                  │
-│  collection: users     │       │  ┌──────────┐ ┌─────────┐ ┌────┐ │
-│  (hashed passwords)    │       │  │ RAG Node │ │ Weather │ │Srch│ │
-└────────────────────────┘       │  └────┬─────┘ │  Node   │ │Node│ │
-                                 │       │       └────┬────┘ └─┬──┘ │
-                                 │       └────────────┼─────────┘  │
-                                 │              ┌─────▼──────┐     │
-                                 │              │Planner Node│     │
-                                 │              └─────┬──────┘     │
-                                 │              ┌──────▼───────┐   │
-                                 │              │Optimizer Node│   │
-                                 │              └──────┬───────┘   │
-                                 └─────────────────────┼───────────┘
-                                                       ▼
-                                          ┌───────────────────────┐
-                                          │ Structured JSON Output │
-                                          │      + PDF Export      │
-                                          └───────────────────────┘
-```
+<img width="1536" height="1024" alt="ChatGPT Image Jul 17, 2026, 10_24_21 PM" src="https://github.com/user-attachments/assets/c5151c91-3014-40ce-91dc-72d7d72fc317" />
 
 ---
 
 ## 🧠 LangGraph Workflow
 
-```
-START
-  │
-  ├─▶ [RAG Node]         ← Retrieves local travel knowledge from ChromaDB (Cohere-reranked)
-  │
-  ├─▶ [Weather Node]     ← Fetches live weather, adjusts activity scheduling
-  │
-  ├─▶ [Search Node]      ← Real-time search (Serper) for events, tips, hidden gems
-  │
-  ├─▶ [Planner Node]     ← Generates full multi-day itinerary with meals via Groq LLM
-  │
-  └─▶ [Optimizer Node]   ← Validates budget, optimizes routes & expenses
-        │
-       END → Structured Output → PDF Export (ReportLab)
-```
+<img width="1693" height="929" alt="ChatGPT Image Jul 17, 2026, 09_56_13 PM" src="https://github.com/user-attachments/assets/ae2bb611-5a9e-436f-addd-2ccabdfbbbc9" />
 
 ---
 
